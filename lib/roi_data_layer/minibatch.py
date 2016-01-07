@@ -54,6 +54,9 @@ def get_minibatch(roidb, num_classes):
     # For debug visualizations
     # _vis_minibatch(im_blob, rois_blob, labels_blob, all_overlaps)
 
+    assert len(labels_blob) > 0, "There are no labels: this can results if"\
+        "images have no fg objects and TRAIN.BG_THRESH_LO > 0"
+
     blobs = {'data': im_blob,
              'rois': rois_blob,
              'labels': labels_blob}
