@@ -12,7 +12,7 @@ RoIDataLayer implements a Caffe Python layer.
 
 import caffe
 from fast_rcnn.config import cfg
-from roi_data_layer.minibatch import get_minibatch
+from roi_data_layer.minibatch import get_minibatch, NoLabels
 import numpy as np
 import yaml
 from multiprocessing import Process, Queue
@@ -43,9 +43,13 @@ class RoIDataLayer(caffe.Layer):
         if cfg.TRAIN.USE_PREFETCH:
             return self._blob_queue.get()
         else:
-            db_inds = self._get_next_minibatch_inds()
-            minibatch_db = [self._roidb[i] for i in db_inds]
-            return get_minibatch(minibatch_db, self._num_classes)
+            while True:
+                db_inds = self._get_next_minibatch_inds()
+                minibatch_db = [self._roidb[i] for i in db_inds]
+                try:
+                    return get_minibatch(minibatch_db, self._num_classes)
+                except NoLabels:
+                    pass #Have another go                    
 
     def set_roidb(self, roidb):
         """Set the roidb to be used by this layer during training."""
@@ -156,5 +160,8 @@ class BlobFetcher(Process):
         while True:
             db_inds = self._get_next_minibatch_inds()
             minibatch_db = [self._roidb[i] for i in db_inds]
-            blobs = get_minibatch(minibatch_db, self._num_classes)
-            self._queue.put(blobs)
+            try:
+                blobs = get_minibatch(minibatch_db, self._num_classes)
+                self._queue.put(blobs)
+            except NoLabels:
+                pass #Keep looping
