@@ -13,6 +13,9 @@ import cv2
 from fast_rcnn.config import cfg
 from utils.blob import prep_im_for_blob, im_list_to_blob
 
+class NoLabels(Exception):
+    pass
+
 def get_minibatch(roidb, num_classes):
     """Given a roidb, construct a minibatch sampled from it."""
     num_images = len(roidb)
@@ -53,6 +56,9 @@ def get_minibatch(roidb, num_classes):
 
     # For debug visualizations
     # _vis_minibatch(im_blob, rois_blob, labels_blob, all_overlaps)
+
+    if len(labels_blob) == 0:
+        raise NoLabels
 
     blobs = {'data': im_blob,
              'rois': rois_blob,

@@ -18,7 +18,6 @@ class imdb(object):
 
     def __init__(self, name):
         self._name = name
-        self._num_classes = 0
         self._classes = []
         self._image_index = []
         self._obj_proposer = 'selective_search'
@@ -161,13 +160,16 @@ class imdb(object):
 
             if gt_roidb is not None:
                 gt_boxes = gt_roidb[i]['boxes']
-                gt_classes = gt_roidb[i]['gt_classes']
-                gt_overlaps = bbox_overlaps(boxes.astype(np.float),
+
+                #Need at least one box for argmax
+                if gt_boxes.shape[0] > 0: 
+                    gt_classes = gt_roidb[i]['gt_classes']
+                    gt_overlaps = bbox_overlaps(boxes.astype(np.float),
                                             gt_boxes.astype(np.float))
-                argmaxes = gt_overlaps.argmax(axis=1)
-                maxes = gt_overlaps.max(axis=1)
-                I = np.where(maxes > 0)[0]
-                overlaps[I, gt_classes[argmaxes[I]]] = maxes[I]
+                    argmaxes = gt_overlaps.argmax(axis=1)
+                    maxes = gt_overlaps.max(axis=1)
+                    I = np.where(maxes > 0)[0]
+                    overlaps[I, gt_classes[argmaxes[I]]] = maxes[I]
 
             overlaps = scipy.sparse.csr_matrix(overlaps)
             roidb.append({'boxes' : boxes,
@@ -184,10 +186,17 @@ class imdb(object):
             a[i]['boxes'] = np.vstack((a[i]['boxes'], b[i]['boxes']))
             a[i]['gt_classes'] = np.hstack((a[i]['gt_classes'],
                                             b[i]['gt_classes']))
-            a[i]['gt_overlaps'] = scipy.sparse.vstack([a[i]['gt_overlaps'],
-                                                       b[i]['gt_overlaps']])
+            a[i]['gt_overlaps'] = imdb.vstack([a[i]['gt_overlaps'],
+                                               b[i]['gt_overlaps']])
+            
         return a
 
+    @staticmethod
+    def vstack(blocks):
+        """As spipy.sparse.vstack, but allowing for the lack of gt overlaps"""
+        blocks = [[block] for block in blocks if block.shape[0]]
+        return scipy.sparse.bmat(blocks)
+        
     def competition_mode(self, on):
         """Turn competition mode on or off."""
         pass

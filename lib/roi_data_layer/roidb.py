@@ -95,6 +95,12 @@ def _compute_targets(rois, overlaps, labels):
     ex_gt_overlaps = utils.cython_bbox.bbox_overlaps(rois[ex_inds, :],
                                                      rois[gt_inds, :])
 
+    targets = np.zeros((rois.shape[0], 5), dtype=np.float32)
+
+    #No gt or no overlaps above threshold
+    if len(ex_gt_overlaps) == 0:
+        return targets
+
     # Find which gt ROI each ex ROI has max overlap with:
     # this will be the ex ROI's gt target
     gt_assignment = ex_gt_overlaps.argmax(axis=1)
@@ -116,7 +122,6 @@ def _compute_targets(rois, overlaps, labels):
     targets_dw = np.log(gt_widths / ex_widths)
     targets_dh = np.log(gt_heights / ex_heights)
 
-    targets = np.zeros((rois.shape[0], 5), dtype=np.float32)
     targets[ex_inds, 0] = labels[ex_inds]
     targets[ex_inds, 1] = targets_dx
     targets[ex_inds, 2] = targets_dy
