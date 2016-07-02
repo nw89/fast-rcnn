@@ -137,7 +137,7 @@ Here are some pointers; if you run into trouble using these resources please dir
 1. Selective Search: [original matlab code](http://disi.unitn.it/~uijlings/MyHomepage/index.php#page=projects1), [python wrapper](https://github.com/sergeyk/selective_search_ijcv_with_python)
 2. EdgeBoxes: [matlab code](https://github.com/pdollar/edges)
 3. GOP and LPO: [python code](http://www.philkr.net/)
-4. MCG: [matlab code](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/mcg/)
+4. MCG: [matlab code   ](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/mcg/)
 5. RIGOR: [matlab code](http://cpl.cc.gatech.edu/projects/RIGOR/)
 
 Apologies if I've left your method off this list. Feel free to contact me and ask for it to be included.
